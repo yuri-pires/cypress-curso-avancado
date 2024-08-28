@@ -1,8 +1,12 @@
 {
   "name": "cypress_project",
   "version": "1.0.0",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:test": "cypress run"
+  },
   "devDependencies": {
-    "cypress": "^13.13.3",
+    "cypress": "^13.14.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import { defineConfig } from 'cypress'
+import { defineConfig } from "cypress";
 
 export default defineConfig({
   e2e: {
@@ -6,6 +6,8 @@ export default defineConfig({
       require("cypress-localstorage-commands/plugin")(on, config);
       return config;
     },
-    specPattern: "cypress/e2e/**/*.{cy,spec}.{js,ts}"
+    specPattern: "cypress/e2e/**/*.{cy,spec}.{js,ts}",
+    baseUrl: "https://wlsf82-hacker-stories.web.app/",
+    watchForFileChanges: false,
   },
-})
+});
