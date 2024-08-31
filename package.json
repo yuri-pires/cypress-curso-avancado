@@ -6,7 +6,7 @@
     "cy:test": "cypress run"
   },
   "devDependencies": {
-    "cypress": "^13.14.0",
+    "cypress": "^13.14.1",
     "prettier": "3.3.3",
     "typescript": "^5.5.4"
   },
