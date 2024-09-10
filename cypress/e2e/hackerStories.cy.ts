@@ -5,37 +5,37 @@ describe("Hacker Stories", () => {
   const newTerm = "Cypress";
 
   context("Mockando a API", () => {
-    beforeEach(() => {
-      cy.intercept(
-        {
-          method: "GET",
-          pathname: "**/search",
-          query: {
-            query: initialTerm,
-            page: "0",
+    context("Footer and List of stories", () => {
+      beforeEach(() => {
+        cy.intercept(
+          {
+            method: "GET",
+            pathname: "**/search",
+            query: {
+              query: initialTerm,
+              page: "0",
+            },
           },
-        },
-        { fixture: "stories" },
-      ).as("getStories");
+          { fixture: "stories" }
+        ).as("getStories");
 
-      cy.visit("/");
-      cy.wait("@getStories");
-    });
+        cy.visit("/");
+        cy.wait("@getStories");
+      });
 
-    it("shows the footer", () => {
-      cy.get("footer")
-        .should("be.visible")
-        .and("contain", "Icons made by Freepik from www.flaticon.com");
-    });
+      it("shows the footer", () => {
+        cy.get("footer")
+          .should("be.visible")
+          .and("contain", "Icons made by Freepik from www.flaticon.com");
+      });
 
-    context("List of stories", () => {
       // Since the API is external,
       // I can't control what it will provide to the frontend,
       // and so, how can I assert on the data?
       // This is why this test is being skipped.
       // TODO: Find a way to test it out.
       it.skip("shows the right data for all rendered stories", () => {});
-      it.only("shows one less story after dimissing the first story", () => {
+      it("shows one less story after dimissing the first story", () => {
         cy.get(".button-small").first().click();
 
         cy.get(".item").should("have.length", 1);
@@ -58,25 +58,49 @@ describe("Hacker Stories", () => {
     });
 
     context("Search", () => {
+      // Podemos ter vários intercepts acontecendo ao mesmo tempo
+      // É indicado iniciar eles em um beforeEach para desde o ínicio do teste
+      // ele ficar buscando essa requisição e manipular ela quando ela acontecer
+      // Neste cenário temos dois intercepts, onde cada um ocorrerá dependendo
+      // do termo de busca inerido do menu.
       beforeEach(() => {
-        cy.intercept({
-          method: "GET",
-          pathname: "**/search",
-          query: {
-            query: newTerm,
-            page: "0",
+        cy.intercept(
+          {
+            method: "GET",
+            pathname: "**/search",
+            query: {
+              query: initialTerm,
+              page: "0",
+            },
           },
-        }).as("getCypressSearch");
+          {
+            fixture: "empty",
+          }
+        ).as("getEmptySearch");
 
+        cy.intercept(
+          {
+            method: "GET",
+            pathname: "**/search",
+            query: {
+              query: newTerm,
+              page: "0",
+            },
+          },
+          {
+            fixture: "stories",
+          }
+        ).as("getStories");
+
+        cy.visit("/");
         cy.get("#search").clear();
       });
 
-      it("types and hits ENTER", () => {
+      it.only("types and hits ENTER", () => {
         cy.get("#search").type(`${newTerm}{enter}`);
 
-        cy.wait("@getCypressSearch");
-        cy.get(".item").should("have.length", 20);
-        cy.get(".item").first().should("contain", newTerm);
+        cy.wait("@getStories");
+        cy.get(".item").should("have.length", 2);
         cy.get(`button:contains(${initialTerm})`).should("be.visible");
       });
 
@@ -124,7 +148,7 @@ context("Errors", () => {
       },
       {
         statusCode: 500,
-      },
+      }
     ).as("internalServerError");
 
     cy.visit("/");
@@ -141,7 +165,7 @@ context("Errors", () => {
       },
       {
         forceNetworkError: true,
-      },
+      }
     ).as("networkError");
 
     cy.visit("/");
