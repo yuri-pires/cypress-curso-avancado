@@ -66,7 +66,7 @@ describe("Hacker Stories", () => {
       });
 
       it("shows one less story after dimissing the first story", () => {
-        cy.get(".button-small").first().click();
+        cy.get(".button-small").first().should("be.visible").click();
 
         cy.get(".item").should("have.length", 1);
       });
@@ -191,7 +191,7 @@ describe("Hacker Stories", () => {
         ).as("getStories");
 
         cy.visit("/");
-        cy.get("#search").clear();
+        cy.get("#search").should("be.visible").clear();
       });
 
       it("shows no story when none is returned", () => {
@@ -199,7 +199,7 @@ describe("Hacker Stories", () => {
       });
 
       it("types and hits ENTER", () => {
-        cy.get("#search").type(`${newTerm}{enter}`);
+        cy.get("#search").should("be.visible").type(`${newTerm}{enter}`);
 
         cy.wait("@getStories");
         cy.get(".item").should("have.length", 2);
@@ -207,7 +207,7 @@ describe("Hacker Stories", () => {
       });
 
       it("types and clicks the submit button", () => {
-        cy.get("#search").type(newTerm);
+        cy.get("#search").should("be.visible").type(newTerm);
         cy.contains("Submit").click();
 
         cy.wait("@getStories");
@@ -218,7 +218,7 @@ describe("Hacker Stories", () => {
       // Não é uma boa prática enviar diretamente, pois
       // não reproduz o comportamento real do usário
       it.skip("types and submits the form directly", () => {
-        cy.get("#search").type(newTerm);
+        cy.get("#search").should("be.visible").type(newTerm);
         cy.get("form").submit();
 
         cy.wait("@getCypressSearch");
