@@ -2,7 +2,9 @@
   "name": "cypress_project",
   "version": "1.0.0",
   "scripts": {
-    "cy:open": "cypress open",
+    "cy:open:chrome": "cypress open --e2e --browser chrome",
+    "cy:open:firefox": "cypress open --e2e --browser firefox",
+    "cy:run:chrome": "cypress run --browser chrome",
     "cy:test": "cypress run"
   },
   "devDependencies": {
