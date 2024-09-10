@@ -9,5 +9,6 @@ export default defineConfig({
     specPattern: "cypress/e2e/**/*.{cy,spec}.{js,ts}",
     baseUrl: "https://wlsf82-hacker-stories.web.app/",
     watchForFileChanges: false,
+    experimentalRunAllSpecs: true,
   },
 });

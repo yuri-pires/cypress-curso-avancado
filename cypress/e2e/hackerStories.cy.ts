@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
+import { any } from "cypress/types/bluebird";
 
 describe("Hacker Stories", () => {
+  const stories = require("../fixtures/stories.json");
   const initialTerm = "React";
   const newTerm = "Cypress";
 
@@ -34,7 +36,35 @@ describe("Hacker Stories", () => {
       // and so, how can I assert on the data?
       // This is why this test is being skipped.
       // TODO: Find a way to test it out.
-      it.skip("shows the right data for all rendered stories", () => {});
+      // Com a API mockada, conseguimos testar que o dado em tal linha corresponde
+      // ao dado enviado no mock
+      it("shows the right data for all rendered stories", () => {
+        // Neste teste, após mockar a API, nós criamos um objeto com o json da fixture
+        // Esse JSON será nosso objeto para comparar com as linhas da tabela
+        cy.get(".item")
+          .first()
+          .should("contain", stories.hits[0].title)
+          .and("contain", stories.hits[0].author)
+          .and("contain", stories.hits[0].num_comments)
+          .and("contain", stories.hits[0].points);
+
+        // Podemos capturar um elemento utilizando esse seletor jQuery
+        // Após, verificamos que o elemento a dentro de um objeto com a classe .item
+        // Tem o atributo href
+        cy.get(`.item a:contains(${stories.hits[0].title})`).should(
+          "have.attr",
+          "href",
+          `${stories.hits[0].url}`
+        );
+
+        cy.get(".item")
+          .last()
+          .should("contain", stories.hits[1].title)
+          .and("contain", stories.hits[1].author)
+          .and("contain", stories.hits[1].num_comments)
+          .and("contain", stories.hits[1].points);
+      });
+
       it("shows one less story after dimissing the first story", () => {
         cy.get(".button-small").first().click();
 
@@ -46,14 +76,82 @@ describe("Hacker Stories", () => {
       // and so, how can I test ordering?
       // This is why these tests are being skipped.
       // TODO: Find a way to test them out.
-      context.skip("Order by", () => {
-        it("orders by title", () => {});
+      context("Order by", () => {
+        it("orders by title", () => {
+          cy.get(".list-header-button:contains(Title)")
+            .as("titleHeader")
+            .should("be.visible")
+            .click();
 
-        it("orders by author", () => {});
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[0].title);
 
-        it("orders by comments", () => {});
+          cy.get("@titleHeader").click();
 
-        it("orders by points", () => {});
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[1].title);
+        });
+
+        it("orders by author", () => {
+          cy.get(".list-header-button:contains(Author)")
+            .as("authorHeader")
+            .should("be.visible")
+            .click();
+
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[0].author);
+
+          cy.get("@authorHeader").click();
+
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[1].author);
+        });
+
+        it("orders by comments", () => {
+          cy.get(".list-header-button:contains(Comments)")
+            .as("commentsHeader")
+            .should("be.visible")
+            .click();
+
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[1].num_comments);
+
+          cy.get("@commentsHeader").click();
+
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[0].num_comments);
+        });
+
+        it("orders by points", () => {
+          cy.get(".list-header-button:contains(Points)")
+            .as("pointsHeader")
+            .should("be.visible")
+            .click();
+
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[1].points);
+
+          cy.get("@pointsHeader").click();
+
+          cy.get(".item")
+            .first()
+            .should("be.visible")
+            .and("contain", stories.hits[0].points);
+        });
       });
     });
 
@@ -96,7 +194,11 @@ describe("Hacker Stories", () => {
         cy.get("#search").clear();
       });
 
-      it.only("types and hits ENTER", () => {
+      it("shows no story when none is returned", () => {
+        cy.get(".item").should("not.exist");
+      });
+
+      it("types and hits ENTER", () => {
         cy.get("#search").type(`${newTerm}{enter}`);
 
         cy.wait("@getStories");
@@ -108,14 +210,14 @@ describe("Hacker Stories", () => {
         cy.get("#search").type(newTerm);
         cy.contains("Submit").click();
 
-        cy.wait("@getCypressSearch");
+        cy.wait("@getStories");
 
-        cy.get(".item").should("have.length", 20);
-        cy.get(".item").first().should("contain", newTerm);
-        cy.get(`button:contains(${initialTerm})`).should("be.visible");
+        cy.get(".item").should("have.length", 2);
       });
 
-      it("types and submits the form directly", () => {
+      // Não é uma boa prática enviar diretamente, pois
+      // não reproduz o comportamento real do usário
+      it.skip("types and submits the form directly", () => {
         cy.get("#search").type(newTerm);
         cy.get("form").submit();
 
@@ -125,7 +227,9 @@ describe("Hacker Stories", () => {
 
       context("Last searches", () => {
         it("shows a max of 5 buttons for the last searched terms", () => {
-          cy.intercept("GET", "**/search**").as("getRandomWord");
+          cy.intercept("GET", "**/search**", { fixture: "empty" }).as(
+            "getRandomWord"
+          );
 
           Cypress._.times(6, () => {
             cy.get("#search").clear().type(`${faker.random.word()}{enter}`);

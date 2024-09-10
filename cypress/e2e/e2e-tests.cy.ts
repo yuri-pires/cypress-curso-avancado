@@ -51,7 +51,7 @@ describe("Hacker Stories", () => {
 
       cy.wait("@getCypressSearch");
 
-      cy.get(`button:contains(${initialTerm})`).should("cont").click();
+      cy.get(`button:contains(${initialTerm})`).should("be.visible").click();
 
       cy.wait("@getStories");
 
