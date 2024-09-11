@@ -5,6 +5,7 @@ describe("Hacker Stories", () => {
   const stories = require("../fixtures/stories.json");
   const initialTerm = "React";
   const newTerm = "Cypress";
+  const delayTerm = "Delay";
 
   context("Mockando a API", () => {
     context("Footer and List of stories", () => {
@@ -190,8 +191,31 @@ describe("Hacker Stories", () => {
           }
         ).as("getStories");
 
+        cy.intercept(
+          {
+            method: "GET",
+            pathname: "**/search",
+            query: {
+              query: delayTerm,
+              page: "0",
+            },
+          },
+          {
+            delay: 2000,
+            fixture: "stories",
+          }
+        ).as("getDelayedStories");
+
         cy.visit("/");
         cy.get("#search").should("be.visible").clear();
+      });
+
+      it.only('shows a "Loading ..." state before showing the results', () => {
+        cy.get("#search").should("be.visible").type(`${delayTerm}{enter}`);
+        cy.assertLoadingIsShownAndHidden();
+        cy.wait("@getDelayedStories");
+
+        cy.get(".item").should("have.length", 2);
       });
 
       it("shows no story when none is returned", () => {
