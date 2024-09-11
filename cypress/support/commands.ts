@@ -24,7 +24,9 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('assertLoadingIsShownAndHidden', () => {
-  cy.contains('Loading ...').should('be.visible')
-  cy.contains('Loading ...').should('not.exist')
-})
+import "cypress-localstorage-commands";
+
+Cypress.Commands.add("assertLoadingIsShownAndHidden", () => {
+  cy.contains("Loading ...").should("be.visible");
+  cy.contains("Loading ...").should("not.exist");
+});

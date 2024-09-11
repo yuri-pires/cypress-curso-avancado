@@ -232,11 +232,18 @@ describe("Hacker Stories", () => {
           );
 
           Cypress._.times(6, () => {
-            cy.get("#search").clear().type(`${faker.random.word()}{enter}`);
+            const randomWord = faker.random.word();
+            cy.get("#search").clear().type(`${randomWord}{enter}`);
             cy.wait("@getRandomWord");
+
+            cy.getLocalStorage("search").should("equal", randomWord);
           });
 
-          cy.get(".last-searches button").should("have.length", 5);
+          //cy.get(".last-searches button").should("have.length", 5);
+
+          cy.get(".last-searches").within(() => {
+            cy.get("button").should("have.length", 5);
+          });
         });
       });
     });
