@@ -210,7 +210,7 @@ describe("Hacker Stories", () => {
         cy.get("#search").should("be.visible").clear();
       });
 
-      it.only('shows a "Loading ..." state before showing the results', () => {
+      it('shows a "Loading ..." state before showing the results', () => {
         cy.get("#search").should("be.visible").type(`${delayTerm}{enter}`);
         cy.assertLoadingIsShownAndHidden();
         cy.wait("@getDelayedStories");
